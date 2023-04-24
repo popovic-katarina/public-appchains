@@ -1,23 +1,34 @@
 const path = require("path");
 const fs = require("fs");
 const https = require("https");
+
 const directoryPath = path.join(__dirname, "appchains");
+
+fs.readdir(directoryPath, (err, files) => {
+  if (err) {
+    throw new Error("Unable to scan directory: " + err);
+  }
+
+  files.forEach((file) => {
+    console.log("Reading file: " + file);
+    const tmpAppChain = readFile(directoryPath + "/" + file);
+    const tmpShortName = tmpAppChain.shortName;
+
+    getQuote(tmpShortName)
+      .then((data) => {
+        tmpAppChain.value = data.price;
+        tmpAppChain.valueUpdated = data.last_updated;
+        writeJSONFile(tmpAppChain);
+      })
+      .catch((err) => {
+        console.log("Error geting data for " + tmpShortName + ":", err);
+      });
+  });
+});
 
 const readFile = (fileDir) => {
   let rawdata = fs.readFileSync(fileDir);
   return JSON.parse(rawdata);
-};
-
-const writeJSONFile = (data) => {
-  const path = __dirname + "/appchains/" + data.name.toLowerCase() + ".json";
-
-  fs.writeFile(path, JSON.stringify(data), (err) => {
-    if (err) {
-      throw new Error("Unable to crate file: " + err);
-    }
-
-    console.log("JSON file for " + data.name + " generated successfully.");
-  });
 };
 
 const getQuote = (symbol) => {
@@ -29,7 +40,7 @@ const getQuote = (symbol) => {
         "X-CMC_PRO_API_KEY": process.env.API_KEY,
       },
     };
-    
+
     https
       .get(options, (res) => {
         let data = "";
@@ -54,24 +65,14 @@ const getQuote = (symbol) => {
   });
 };
 
-fs.readdir(directoryPath, (err, files) => {
-  if (err) {
-    throw new Error("Unable to scan directory: " + err);
-  }
+const writeJSONFile = (data) => {
+  const path = __dirname + "/appchains/" + data.name.toLowerCase() + ".json";
 
-  files.forEach((file) => {
-    console.log("Reading file: " + file);
-    const tmpAppChain = readFile(directoryPath + "/" + file);
-    const tmpShortName = tmpAppChain.shortName;
+  fs.writeFile(path, JSON.stringify(data), (err) => {
+    if (err) {
+      throw new Error("Unable to crate file: " + err);
+    }
 
-    getQuote(tmpShortName)
-      .then((data) => {
-        tmpAppChain.value = data.price;
-        tmpAppChain.valueUpdated = data.last_updated;
-        writeJSONFile(tmpAppChain);
-      })
-      .catch((err) => {
-        console.log("Error geting data for " + tmpShortName + ":", err);
-      });
+    console.log("JSON file for " + data.name + " generated successfully.");
   });
-});
+};

@@ -1,11 +1,118 @@
 const path = require("path");
 const fs = require("fs");
 const https = require("https");
+
 const directoryPath = path.join(__dirname, "appchains");
+
+fs.readdir(directoryPath, (err, files) => {
+  if (err) {
+    throw new Error("Unable to scan directory: " + files);
+  }
+
+  files.forEach(async (file) => {
+    const tmpAppChain = readFile(directoryPath + "/" + file);
+
+    updateHeight(tmpAppChain);
+  });
+});
 
 const readFile = (fileDir) => {
   let rawdata = fs.readFileSync(fileDir);
   return JSON.parse(rawdata);
+};
+
+const updateHeight = (chain) => {
+  if (chain.jsonRPC) {
+    chain.ecosystem.toLowerCase() === "cosmos"
+      ? handleCosmos(chain)
+      : handleEth(chain);
+  } else {
+    console.log("RPC is not provided for " + chain.shortName);
+  }
+};
+
+const handleCosmos = (chain) => {
+  options = {
+    hostname: chain.jsonRPC.split("/")[2],
+    path: "/status",
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const request = https
+    .request(options, (res) => {
+      let data = "";
+      res
+        .on("data", (chunk) => {
+          data += chunk;
+        })
+        .on("end", () => {
+          console.log("Response fetched: ", chain.shortName);
+          const result = getResult(data, chain.shortName);
+
+          chain.blockNumber = result.sync_info?.latest_block_height;
+          chain.blockNumberUpdated = result.sync_info?.latest_block_time;
+          writeJSONFile(chain);
+        });
+    })
+    .on("error", (err) => {
+      throw new Error("No data is provided: " + err);
+    });
+
+  request.end();
+};
+
+const handleEth = (chain) => {
+  body = JSON.stringify({
+    jsonrpc: "2.0",
+    method: "eth_getBlockByNumber",
+    params: ["latest", false],
+    id: 0,
+  });
+
+  options = {
+    hostname: chain.jsonRPC.split("/")[2],
+    path: chain.jsonRPC.substring(chain.jsonRPC.indexOf("/", 8)),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const request = https
+    .request(options, (res) => {
+      let data = "";
+      res
+        .on("data", (chunk) => {
+          data += chunk;
+        })
+        .on("end", () => {
+          console.log("Response ended: ", chain.shortName);
+          const result = getResult(data, chain.shortName);
+
+          chain.blockNumber = parseInt(result.number, 16);
+          chain.blockNumberUpdated = new Date(
+            result.timestamp * 1000
+          ).toISOString();
+          writeJSONFile(chain);
+        });
+    })
+    .on("error", (err) => {
+      throw new Error("No data is provided: " + err);
+    });
+
+  request.end(body);
+};
+
+const getResult = (data, chainName) => {
+  const response = JSON.parse(data);
+  const result = response.result;
+  if (!result) {
+    throw new Error("No data is provided for" + chainName);
+  }
+  return result;
 };
 
 const writeJSONFile = (data) => {
@@ -16,69 +123,6 @@ const writeJSONFile = (data) => {
       throw new Error("Unable to crate file: " + err);
     }
 
-    console.log("JSON file for " + data.name + " generated successfully.");
+    console.log("JSON file for " + data.shortName + " generated successfully.");
   });
 };
-
-const updateHeight = (chain) => {
-  if (chain.jsonRPC) {
-    var body = JSON.stringify({
-      jsonrpc: "2.0",
-      method: "eth_getBlockByNumber",
-      params: ["latest", false],
-      id: 0,
-    });
-
-    var options = {
-      hostname: chain.jsonRPC.split("/")[2],
-      path: chain.jsonRPC.substring(chain.jsonRPC.indexOf("/", 8)),
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    const request = https
-      .request(options, (res) => {
-        let data = "";
-        res
-          .on("data", (chunk) => {
-            data += chunk;
-          })
-          .on("end", () => {
-            console.log("Response ended: ", chain.shortName);
-            const response = JSON.parse(data);
-            const result = response.result;
-            if (!result) {
-              throw new Error("No data is provided");
-            }
-
-            chain.blockNumber = parseInt(result.number, 16);
-            chain.blockNumberUpdated = new Date(
-              result.timestamp * 1000
-            ).toISOString();
-            writeJSONFile(chain);
-          });
-      })
-      .on("error", (err) => {
-        throw new Error("No data is provided: " + err);
-      });
-
-    request.end(body);
-  } else {
-    console.log("RPC is not provided for " + chain.shortName);
-  }
-};
-
-fs.readdir(directoryPath, (err, files) => {
-  if (err) {
-    throw new Error("Unable to scan directory: " + files);
-  }
-
-  files.forEach(async (file) => {
-    console.log("Reading file: " + file);
-    const tmpAppChain = readFile(directoryPath + "/" + file);
-
-    updateHeight(tmpAppChain);
-  });
-});
