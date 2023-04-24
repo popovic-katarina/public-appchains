@@ -48,20 +48,22 @@ const handleCosmos = (chain) => {
         .on("data", (chunk) => {
           data += chunk;
         })
-        .on("end", () => {
-          console.log("Response fetched: ", chain.shortName);
-          const result = getResult(data, chain.shortName);
-
-          chain.blockNumber = result.sync_info?.latest_block_height;
-          chain.blockNumberUpdated = result.sync_info?.latest_block_time;
-          writeJSONFile(chain);
-        });
+        .on("end", () => handleCosmosResponse(data, chain));
     })
     .on("error", (err) => {
       throw new Error("No data is provided: " + err);
     });
 
   request.end();
+};
+
+const handleCosmosResponse = (data, chain) => {
+  console.log("Response fetched: ", chain.shortName);
+  const result = getResult(data, chain.shortName);
+
+  chain.blockNumber = result.sync_info?.latest_block_height;
+  chain.blockNumberUpdated = result.sync_info?.latest_block_time;
+  writeJSONFile(chain);
 };
 
 const handleEth = (chain) => {
@@ -88,22 +90,22 @@ const handleEth = (chain) => {
         .on("data", (chunk) => {
           data += chunk;
         })
-        .on("end", () => {
-          console.log("Response ended: ", chain.shortName);
-          const result = getResult(data, chain.shortName);
-
-          chain.blockNumber = parseInt(result.number, 16);
-          chain.blockNumberUpdated = new Date(
-            result.timestamp * 1000
-          ).toISOString();
-          writeJSONFile(chain);
-        });
+        .on("end", () => handleEthResponse(data, chain));
     })
     .on("error", (err) => {
       throw new Error("No data is provided: " + err);
     });
 
   request.end(body);
+};
+
+const handleEthResponse = (data, chain) => {
+  console.log("Response ended: ", chain.shortName);
+  const result = getResult(data, chain.shortName);
+
+  chain.blockNumber = parseInt(result.number, 16);
+  chain.blockNumberUpdated = new Date(result.timestamp * 1000).toISOString();
+  writeJSONFile(chain);
 };
 
 const getResult = (data, chainName) => {
