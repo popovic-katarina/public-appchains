@@ -24,7 +24,7 @@ const readFile = (fileDir) => {
 
 const writeJSONFile = (data) => {
   const path = __dirname + "/data.json";
-  console.log("path", path);
+
   fs.writeFile(path, JSON.stringify({ data }), (err) => {
     if (err) {
       throw new Error("Unable to create file: " + err);
