@@ -2,7 +2,7 @@ name: Update data every night
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "*/5 * * * *"
 
 jobs:
   scheduled_update:
@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_ACESS_TOKEN }} 
         
       - name: Update value in each appchain
         run: API_KEY=${{ secrets.CMC_KEY }} API_URL=${{ secrets.CMC_URL }} node updateValue.js
@@ -31,4 +33,4 @@ jobs:
         run: |
           git add .
           git commit -m "update data.json"
-          git push origin master
+          git push origin main
