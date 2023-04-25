@@ -2,7 +2,7 @@ name: Update data every night
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "*/5 * * * *"
 
 jobs:
   scheduled_update:
@@ -31,4 +31,4 @@ jobs:
         run: |
           git add .
           git commit -m "update data.json"
-          git push origin master
+          git push origin main
