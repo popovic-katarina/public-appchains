@@ -12,7 +12,9 @@ jobs:
     container: node:18
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  
+        with:
+          token: ${{ secrets.BOT_ACESS_TOKEN }} 
 
       - name: Merge appchains and generate JSON
         run: node generateJson.js
