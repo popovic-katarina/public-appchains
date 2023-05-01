@@ -1,9 +1,9 @@
 {
-    "name": "Test",
-    "shortName": "test",
+    "name": "NewChain",
+    "shortName": "NC",
     "logo": "https://glacier-api.avax.network/proxy/chain-assets/3e1b653/chains/73772/contracts/0x620FF3d705EDBc1bd03e17E6afcaC36a9779f78D/logo.png",
     "ecosystem": "Avalanche (C-Chain)",
-    "ecosystemLogo": "https://cryptologos.cc/logos/avalanche-avax-logo.png?v=024",
+    "ecosystemLogo": "https://s2.coinmarketcap.com/static/img/coins/64x64/3794.png",
     "blockExplorer": "https://avascan.info/blockchain/c/address/0xA32608e873F9DdEF944B24798db69d80Bbb4d1ed",
     "jsonRPC": "",
     "project": "https://www.crabada.com",
@@ -15,5 +15,5 @@
     "category": [
         "NFT"
     ],
-    "tags": []
+    "tags": ["IBC"]
 }
