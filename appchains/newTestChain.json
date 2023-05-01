@@ -1,0 +1,19 @@
+{
+    "name": "NewTestChain",
+    "shortName": "NTC",
+    "logo": "https://glacier-api.avax.network/proxy/chain-assets/3e1b653/chains/73772/contracts/0x620FF3d705EDBc1bd03e17E6afcaC36a9779f78D/logo.png",
+    "ecosystem": "Avalanche (C-Chain)",
+    "ecosystemLogo": "https://s2.coinmarketcap.com/static/img/coins/64x64/3794.png",
+    "blockExplorer": "https://avascan.info/blockchain/c/address/0xA32608e873F9DdEF944B24798db69d80Bbb4d1ed",
+    "jsonRPC": "",
+    "project": "https://www.crabada.com",
+    "description": "Crabada can be bred and used in games to earn cryptocurrencies with real value. All Crabada live on the blockchain so players have full control of their assets.",
+    "value": 0.0013592585131142559,
+    "valueUpdated": "2023-05-01T02:23:00.000Z",
+    "blockNumber": "",
+    "blockNumberUpdated": "",
+    "category": [
+        "NFT"
+    ],
+    "tags": ["IBC"]
+}
