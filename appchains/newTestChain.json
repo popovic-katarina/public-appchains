@@ -1,6 +1,6 @@
 {
-    "name": "NewTestChain",
-    "shortName": "NTC",
+    "name": "Chain1",
+    "shortName": "CH",
     "logo": "https://glacier-api.avax.network/proxy/chain-assets/3e1b653/chains/73772/contracts/0x620FF3d705EDBc1bd03e17E6afcaC36a9779f78D/logo.png",
     "ecosystem": "Avalanche (C-Chain)",
     "ecosystemLogo": "https://s2.coinmarketcap.com/static/img/coins/64x64/3794.png",
